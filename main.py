@@ -1,7 +1,6 @@
 from xlio import *
 from auth import *
 from parse import *
-from invalid_codes import *
 import time
 import multiprocessing
 import os
