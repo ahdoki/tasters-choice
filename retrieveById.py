@@ -23,7 +23,7 @@ class HTTPSudsPreprocessor(urllib2.BaseHandler):
 def retrieve_by_id(input_term, ver, start_record, max_count, SID):
     '''
     This is a method used for subscribed services.
-    :param input_term: input search term.
+    :param input_term: input search term. In this case, the patent ID. the patent ID is an internally used unique ID.
     :param ver: Version 2 or 3. Refer to Thomson Reuters Documentation for details.
     :param start_record: starting record point
     :param max_count: maximum request count
