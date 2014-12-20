@@ -124,6 +124,7 @@ def main(file_dir):
                     db_insert="insert into "+'"'+ comp_name +'"'+ " ('patent_number', 'derwent_code', 'derwent_count') values "+\
                                           "('" + patent_no + "' ,'" + derwent_code + "' ,'"  + final_output[derwent_code] + "')"
                     cursor.execute(db_insert)
+                    conn.commit()
 
 
         print "End Time: ", time.strftime('%X %x %Z')
