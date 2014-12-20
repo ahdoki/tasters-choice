@@ -77,6 +77,10 @@ def raw_xl_in(company_name, start_row, end_row):
     return (patent_dict, citing_patent_dict, cited_patent_dict)[0] #for now, the raw xl input only returns a source patent dict.
 
 def xl_out(company_name, patent_dict, final_output, citation):
+    '''
+    creates an output excel file. This is not used in main.py but it can be used on demand.
+    columns: Reference Patents, Patent Number, Earliest Priority Year, Derwent Class Code, Counts
+    '''
     #citation should say cited or citing.
     out_workbook = xlwt.Workbook()
     out_worksheet = out_workbook.add_sheet('Reference Patents', cell_overwrite_ok = True)
@@ -137,6 +141,9 @@ def xl_out_with_app_year(company_name, patent_dict, final_output, citation):
         print "Citation input should either be 'cited' or 'citing'."
 
 def csv_out(company_name, patent_dict, final_output, citation):
+    '''
+    creates an output csv file. This is not used in main.py but it can be used on demand.
+    '''
     #citation should say cited or citing.
     citation = citation.lower()
     if citation == 'cited':
