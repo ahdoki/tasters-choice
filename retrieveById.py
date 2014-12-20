@@ -21,6 +21,15 @@ class HTTPSudsPreprocessor(urllib2.BaseHandler):
     https_request = http_request
 
 def retrieve_by_id(input_term, ver, start_record, max_count, SID):
+    '''
+    This is a method used for subscribed services.
+    :param input_term: input search term.
+    :param ver: Version 2 or 3. Refer to Thomson Reuters Documentation for details.
+    :param start_record: starting record point
+    :param max_count: maximum request count
+    :param SID: Session ID.
+    :return: output xml
+    '''
     http = HttpTransport()
     opener = urllib2.build_opener(HTTPSudsPreprocessor(SID))
     http.urlopener = opener
@@ -33,12 +42,20 @@ def retrieve_by_id(input_term, ver, start_record, max_count, SID):
                             'sort' : 'D',
                             }]
                 }
-    cited_results = client_obj.service.retrieveById('DIIDW', input_term, 'en', rparams) #REVISE. switch the patent number lists to uids
-    #resultlist should be a result of retrievebyid method collection of pans
+    cited_results = client_obj.service.retrieveById('DIIDW', input_term, 'en', rparams)
     return cited_results
 
 
 def retrieve_by_id_lite(input_term, ver, start_record, max_count, SID):
+    '''
+    This is a method used for lite services.
+    :param input_term: input search term.
+    :param ver: Version 2 or 3. Refer to Thomson Reuters Documentation for details.
+    :param start_record: starting record point
+    :param max_count: maximum request count
+    :param SID: Session ID.
+    :return: output xml
+    '''
     http = HttpTransport()
     opener = urllib2.build_opener(HTTPSudsPreprocessor(SID))
     http.urlopener = opener
@@ -51,6 +68,5 @@ def retrieve_by_id_lite(input_term, ver, start_record, max_count, SID):
                             'sort' : 'D',
                             }]
                 }
-    cited_results = client_obj.service.retrieveById('DIIDW', input_term, 'en', rparams) #REVISE. switch the patent number lists to uids
-    #resultlist should be a result of retrievebyid method collection of pans
+    cited_results = client_obj.service.retrieveById('DIIDW', input_term, 'en', rparams)
     return cited_results
