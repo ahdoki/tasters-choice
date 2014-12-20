@@ -2,10 +2,16 @@ import xml.etree.ElementTree as ET
 from multiprocessing import Pool
 
 def  convert_text_data_to_xml(xml_data):
+    '''
+    converts xml data to text.
+    '''
     text_data=xml_data.text
     return text_data
 
 def  retrieve_patent_data_from_xml(text_data):
+    '''
+    retrieves patent data from xml output.
+    '''
      record=ET.fromstring(text_data)
      for rec in record:
          for pantypl in rec:
@@ -14,6 +20,9 @@ def  retrieve_patent_data_from_xml(text_data):
              return {pan_of_source_patent:list}
 
 def retrieve_pan_of_cited_patents(pan_type_xml_element):
+    '''
+    parses the xml document to retrieve patent accession number(pan) for each cited patent.
+    '''
     cited_pan_list=[]
     for patent_typ1 in pan_type_xml_element:
         for pci_typ1 in patent_typ1:
@@ -30,6 +39,9 @@ def retrieve_pan_of_cited_patents(pan_type_xml_element):
 
 # Given an xml result  on a search by patent id this function returns the pan of the queried patents along with a list of  patents that cited the source patent
 def get_ids_of_cited_patents(xml_result):
+    '''
+    gets unique ids for each cited patents from the xml output.
+    '''
   root=ET.fromstring(xml_result)
   for soap_envelope in root:
     for soap_body in soap_envelope:
@@ -39,14 +51,18 @@ def get_ids_of_cited_patents(xml_result):
                 patent_record_text_data=convert_text_data_to_xml(record)
                 return retrieve_patent_data_from_xml(patent_record_text_data)
 def mp_parsing(pre_parse):
-
+    '''
+    use multiprocessing for the parsing step. this did not significantly accelerate the processing time.
+    '''
     pool = Pool(processes=2)
     temp_result = pool.map(parser, [pre_parse])
     result = post_thread_processing(temp_result)
     return result
 
 def mp_parsing2(xml_result):
-
+    '''
+    use multiprocessing for the parsing step. this did not show any significantly enhanced processing time.
+    '''
     pool = Pool(processes=2)
     temp_result = pool.apply_async(get_derwent_counts, [xml_result])
     return temp_result.get()
@@ -64,41 +80,45 @@ def pre_parser(xml_result):
     return pre_parsed_result
 
 def parser(xml_record):
-    dce_counts_hash={}
+    '''
+    parses the xml record to return a dict that contains derwent technological class codes and their respective counts.
+    the output is as follows: {derwent_code1: count, derwent_code2: count...}
+    '''
+    dce_counts_hash = {}
     for rec in xml_record:
-        list_of_dce=[]
+        list_of_dce = []
         for pan_typ1 in rec:
             for patent_typ1 in pan_typ1:
                 for tags in patent_typ1:
-                    if tags.tag.split("}")[1]=='IndexingCorePtTyp1':
+                    if tags.tag.split("}")[1] == 'IndexingCorePtTyp1':
                           for dc in tags:
                                for child_tags in dc:
-                                   if child_tags.tag.split("}")[1]=="EPIs":
+                                   if child_tags.tag.split("}")[1] == "EPIs":
                                       for epi in child_tags:
                                           for epigp in epi:
                                               for dce in epigp:
-                                                  if dce.tag.split("}")[1]=="DCE":
+                                                  if dce.tag.split("}")[1] == "DCE":
                                                       text=dce.text.split()[0]
                                                       if text  not in list_of_dce:
-                                                         list_of_dce+=[text]
+                                                         list_of_dce += [text]
 
-                                   elif child_tags.tag.split("}")[1]=="CPIs":
+                                   elif child_tags.tag.split("}")[1] == "CPIs":
 
                                       for cpi in child_tags:
                                           for cpi_tags  in cpi:
-                                              if cpi_tags.tag.split("}")[1]=="DCCM":
+                                              if cpi_tags.tag.split("}")[1] == "DCCM":
                                                  text=cpi_tags.text.split()[0]
                                                  if text not in list_of_dce:
 
-                                                        list_of_dce+=[text]
-                                              if cpi_tags.tag.split("}")[1]=="DCCSs":
+                                                        list_of_dce += [text]
+                                              if cpi_tags.tag.split("}")[1] == "DCCSs":
                                                  for dccs in cpi_tags:
 
                                                      text=dccs.text.split()[0]
                                                      if text not in list_of_dce:
 
-                                                        list_of_dce+=[text]
-                                   elif child_tags.tag.split("}")[1]=="EngPIs":
+                                                        list_of_dce += [text]
+                                   elif child_tags.tag.split("}")[1] == "EngPIs":
 
                                             for eng_pi in child_tags:
                                                     for dce_engs in  eng_pi:
@@ -106,19 +126,22 @@ def parser(xml_record):
 
                                                             text=dce_eng.text.split()[0]
                                                             if text not in list_of_dce:
-                                                               list_of_dce+=[text]
+                                                               list_of_dce += [text]
 
 
             for dce in list_of_dce:
                 if dce in dce_counts_hash.keys():
-                   dce_counts_hash[dce]=dce_counts_hash[dce]+1
+                   dce_counts_hash[dce] = dce_counts_hash[dce]+1
                 else:
-                   dce_counts_hash[dce]=1
+                   dce_counts_hash[dce] = 1
     return dce_counts_hash
 
 
 
 def get_derwent_counts(xml_result):
+    '''
+    extracts derwent counts from the xml result.
+    '''
     root=ET.fromstring(xml_result)
     dce_counts_hash={}
     for soap_envelope in root:
@@ -183,6 +206,9 @@ def get_derwent_counts(xml_result):
 
 
 def aggregate(output_dict, input_dict):
+    '''
+    aggregates the collected derwent codes and tallies them up.
+    '''
     if output_dict == {}:
         output_dict = input_dict
     else:
@@ -198,6 +224,9 @@ def aggregate(output_dict, input_dict):
     return output_dict
 
 def post_thread_processing(input_list):
+    '''
+    used for multithreaded process. uses the global variable output_list for derwent class code collection.
+    '''
     output_dict = {}
     for each_dict in input_list:
         output_dict = aggregate(output_dict, each_dict)
@@ -207,6 +236,9 @@ def post_thread_processing(input_list):
     return output_dict
 
 def check_for_r(input_dict):
+    '''
+    disposes the r technological derwent class codes as they are outdated tech code.
+    '''
     output = {}
     input_key = input_dict.keys()
     for key in input_key:
@@ -215,6 +247,9 @@ def check_for_r(input_dict):
     return output
 
 def tally(list_of_dcs):
+    '''
+    tallies up the derwent codes.
+    '''
     dce_counts_hash = {}
     for dce in list_of_dcs:
         if dce in dce_counts_hash.keys():
