@@ -1,5 +1,6 @@
 tasters-choice
 ==============
+AUTHOR: DONGGI AHN
 A python code to access Thomson Reuters' Web of Knowledge API.
 Dependencies: multiprocessing, xlrd, xlwt, csv, suds, ElementTree package as well as standard available python 2.7 packages such as urllib2, sqlite3, os, time.
 Prerequisites: You must purchase the Web of Knowledge subscription from Thomson Reuters and obtain username/password.
